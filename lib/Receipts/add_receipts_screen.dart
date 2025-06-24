@@ -19,6 +19,8 @@ class _ReceiptFormPageState extends State<ReceiptFormPage> {
   final _formKey = GlobalKey<FormState>();
   final _receiptNumberController = TextEditingController();
 
+  final box = Hive.box('stores');
+
   DocumentReference? _selectedSupplierRef;
   DocumentReference? _selectedWarehouseRef;
 
@@ -37,10 +39,14 @@ class _ReceiptFormPageState extends State<ReceiptFormPage> {
     _loadInitialData();
   }
 
+  
+
   Future<void> _loadInitialData() async {
-    final suppliers = await FirebaseFirestore.instance.collection('suppliers').get();
-    final warehouses = await FirebaseFirestore.instance.collection('warehouses').get();
-    final products = await FirebaseFirestore.instance.collection('products').get();
+    final ref = FirebaseFirestore.instance.collection('stores').doc(box.get('code'));
+    
+    final suppliers = await FirebaseFirestore.instance.collection('suppliers').where('store_ref', isEqualTo: ref).get();
+    final warehouses = await FirebaseFirestore.instance.collection('warehouses').where('store_ref', isEqualTo: ref).get();
+    final products = await FirebaseFirestore.instance.collection('products').where('store_ref', isEqualTo: ref).get();
 
     setState(() {
       _supplierList = suppliers.docs;
