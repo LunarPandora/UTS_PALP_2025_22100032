@@ -20,6 +20,7 @@ class _WarehouseFormPageState extends State<WarehouseFormPage> {
     if (storePath == null) return;
 
     final storeRef = FirebaseFirestore.instance.collection('stores').doc(storePath);
+    final products = await FirebaseFirestore.instance.collection('products').where('store_ref', isEqualTo: storeRef).get();
 
     final warehouseData = {
       'name': _nameController.text.trim(),
@@ -30,6 +31,16 @@ class _WarehouseFormPageState extends State<WarehouseFormPage> {
     final warehouseDoc = await FirebaseFirestore.instance
         .collection('warehouses')
         .add(warehouseData);
+
+    for (var product in products.docs){
+      await FirebaseFirestore.instance.collection('stock')
+        .add({
+          'product_ref': product.reference,
+          'stock': 0,
+          'store_ref': storeRef,
+          'warehouse_ref': warehouseDoc
+        });
+    }
 
     if (mounted) Navigator.pop(context);
   }

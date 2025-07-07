@@ -11,22 +11,25 @@ class _ProductFormPageState extends State<ProductFormPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
+  final _unitController = TextEditingController();
 
   Future<void> _submitProduct() async {
     if (!_formKey.currentState!.validate() ||
         _nameController.text.isEmpty ||
-        _priceController.text.isEmpty) return;
+        _priceController.text.isEmpty ||
+        _unitController.text.isEmpty) return;
 
     final box = Hive.box('stores');
     final storePath = box.get('code');
     if (storePath == null) return;
 
     final storeRef = FirebaseFirestore.instance.collection('stores').doc(storePath);
+    final warehouses = await FirebaseFirestore.instance.collection('warehouses').where('store_ref', isEqualTo: storeRef).get();
 
     final productsData = {
       'name': _nameController.text.trim(),
       'price': _priceController.text.trim(),
-      'qty': 0,
+      'unit': _unitController.text.trim(),
       'store_ref': storeRef,
       'createdAt': FieldValue.serverTimestamp()
     };
@@ -34,6 +37,16 @@ class _ProductFormPageState extends State<ProductFormPage> {
     final productsDoc = await FirebaseFirestore.instance
         .collection('products')
         .add(productsData);
+
+    for (var warehouse in warehouses.docs){
+      await FirebaseFirestore.instance.collection('stock')
+        .add({
+          'product_ref': productsDoc,
+          'stock': 0,
+          'store_ref': storeRef,
+          'warehouse_ref': warehouse.reference
+        });
+    }
 
     if (mounted) Navigator.pop(context);
   }
@@ -59,6 +72,14 @@ class _ProductFormPageState extends State<ProductFormPage> {
                     TextFormField(
                       controller: _priceController,
                       decoration: InputDecoration(labelText: 'Product Prices'),
+                      validator: (value) => value!.isEmpty ? 'Required' : null,
+                    ),
+
+                    SizedBox(height: 10),
+
+                    TextFormField(
+                      controller: _unitController,
+                      decoration: InputDecoration(labelText: 'Product Unit'),
                       validator: (value) => value!.isEmpty ? 'Required' : null,
                     ),
 

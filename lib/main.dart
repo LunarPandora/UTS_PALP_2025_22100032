@@ -58,6 +58,8 @@ class CheckScreen extends StatelessWidget {
 }
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -101,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen>{
       await box.clear();
       await box.put('code', stores.docs.first.id);
 
-      Navigator.push(context, MaterialPageRoute(builder: (_) => FlatNavApp()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => FlatNavApp()));
     }
   }
 

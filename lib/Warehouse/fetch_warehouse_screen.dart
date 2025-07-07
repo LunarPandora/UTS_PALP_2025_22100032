@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive/hive.dart';
+import 'package:uts_palp_2025_22100032/Mutation/add_mutasi_screen.dart';
+import 'package:uts_palp_2025_22100032/Stock/fetch_stock_screen.dart';
 
 import 'add_warehouse_screen.dart';
 import 'edit_warehouse_screen.dart';
@@ -36,6 +38,16 @@ class FetchWarehousesScreen extends StatelessWidget {
                   return Card(
                     margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: ListTile(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => WarehouseStockPage(
+                              warehouseRef: document.reference,
+                            ),
+                          ),
+                        );
+                      },
                       title: Text(data['name'] ?? '-'),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

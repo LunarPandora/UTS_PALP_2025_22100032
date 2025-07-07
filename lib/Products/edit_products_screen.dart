@@ -20,18 +20,21 @@ class _ProductEditPageState extends State<ProductEditPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
+  final _unitController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _nameController.text = widget.productData['name'] ?? '';
     _priceController.text = widget.productData['price'] ?? '';
+    _unitController.text = widget.productData['unit'] ?? '';
   }
 
   Future<void> _updateProduct() async {
     if (!_formKey.currentState!.validate() ||
         _nameController.text.isEmpty ||
-        _priceController.text.isEmpty) return;
+        _priceController.text.isEmpty ||
+        _unitController.text.isEmpty) return;
 
     final box = Hive.box('stores');
     final storePath = box.get('code');
@@ -40,6 +43,7 @@ class _ProductEditPageState extends State<ProductEditPage> {
     await widget.productRef.update({
       'name': _nameController.text.trim(),
       'price': _priceController.text.trim(),
+      'unit': _unitController.text.trim(),
     });
 
     if (mounted) Navigator.pop(context);
@@ -66,6 +70,14 @@ class _ProductEditPageState extends State<ProductEditPage> {
                     TextFormField(
                       controller: _priceController,
                       decoration: InputDecoration(labelText: 'Product Prices'),
+                      validator: (value) => value!.isEmpty ? 'Required' : null,
+                    ),
+
+                    SizedBox(height: 10),
+
+                    TextFormField(
+                      controller: _unitController,
+                      decoration: InputDecoration(labelText: 'Product Unit'),
                       validator: (value) => value!.isEmpty ? 'Required' : null,
                     ),
 
